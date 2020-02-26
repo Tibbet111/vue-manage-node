@@ -1,27 +1,91 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
+NProgress.configure({showSpinner:false})
+
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path:'/login',
+    component:()=>import('../views/login.vue'),
+    meta:{title:'登录'}
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path:'/',
+    component:()=>import('../components/home.vue'),
+    redirect:'/dashboard',
+    children:[
+      {
+        path:'/dashboard',
+        component:()=>import('../views/dashboard.vue'),
+        meta:{title:'首页'}
+      },
+      {
+        path:'/userinfo',
+        component:()=>import('../views/userinfo.vue'),
+        meta:{title:'编辑用户信息',permission:true}
+      },
+      {
+        path:'/user',
+        component:()=>import('../views/user.vue'),
+        meta:{title:'查询用户信息'}
+      },
+      {
+        path:'/tabs',
+        component:()=>import('../views/tabs.vue'),
+        meta:{title:'消息'}
+      },
+      {
+        path:'/role',
+        component:()=>import('../views/manageroles.vue'),
+        meta:{title:'权限管理',permission:true}
+      }
+    ]
+  },
+  {
+    path:'/401',
+    component:()=>import('../views/401.vue'),
+    meta:{title:'401'}
+  },
+  {
+    path:'/404',
+    component:()=>import('../views/404.vue'),
+    meta:{title:'404'}
+  },
+  {
+    path:'*',
+    redirect:'/404'
   }
 ]
 
 const router = new VueRouter({
   routes
 })
+
+router.beforeEach((to,from,next)=>{
+  NProgress.start()
+  document.title = `${to.meta.title}`
+  const user = JSON.parse(localStorage.getItem('user'))
+  console.log(user);
+  const role = localStorage.role
+  if(to.path == '/login'){
+    localStorage.clear()
+  }
+  if(!user && to.path !=='/login'){
+    next('/login')
+    NProgress.done()
+  }else if(to.meta.permission && role){
+    role === 'admin'?next():next('/401')
+    NProgress.done()
+  }else{
+    next()
+    NProgress.done()
+  }
+})
+
 
 export default router
