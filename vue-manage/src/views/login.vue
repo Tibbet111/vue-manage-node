@@ -42,6 +42,7 @@ export default {
         });
       }, 
       async login(){
+          this.loading = true
           const res = await this.$api.post('/login',this.ruleForm)
           const {user,path,token} = res.data
           localStorage.token = token

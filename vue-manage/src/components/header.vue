@@ -97,6 +97,10 @@ export default {
         })
       }
     },
+    async getMessageLen(){
+      const res = await this.$api.get('/v2/messages')
+      this.message = res.data.length
+    }
   },
   mounted(){
     if(document.body.clientWidth < 1200){
@@ -110,6 +114,7 @@ export default {
     let user = JSON.parse(localStorage.getItem('user'))
     this.username = user.name
     this.userAvatar = user.avatar
+    this.getMessageLen()
   }
 };
 </script>

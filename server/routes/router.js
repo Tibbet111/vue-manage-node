@@ -3,14 +3,19 @@ module.exports = app =>{
     const assert = require('http-assert')
     const adminUser = require('../models/AdminUser')
     const router = express.Router({mergeParams:true})
-
     const jwt = require('jsonwebtoken')
 
     process.on('unhandledRejection', (reason, p) => {
         console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
         // application specific logging, throwing an error, or other logic here
       });
-
+      //错误处理函数
+   app.use(async (err,req,res,next)=>{
+    res.status(err.statusCode || 500).send({
+       message:err.message
+    })
+ })
+ 
     //验证登录
     app.post('/api/login',async (req,res)=>{
         const {username,password} = req.body
@@ -31,6 +36,11 @@ module.exports = app =>{
         let path = null
         if(user.role == 'admin'){
             path = [
+                {
+                  icon:'el-icon-edit-outline',
+                  index:'editmessage',
+                  title:'发布消息'
+                },
                 {
                   icon:'el-icon-s-custom',
                   index:'userinfo',
@@ -58,4 +68,35 @@ module.exports = app =>{
         }
         res.send({token,user,path})
     });
+
+    //登录校验中间件
+    const authMiddleware = require('../middleware/auth')
+    //资源中渐渐
+    const resourceMiddleware = require('../middleware/resource')
+    //通用增删改查接口
+    app.use('/api/v2/:resource',authMiddleware(),resourceMiddleware(),router)
+
+    //获取数据
+    router.get('/',async (req,res)=>{
+      const items = await req.Model.find()
+      res.send(items)
+    })
+    //创建数据
+    router.post('/',async (req,res)=>{
+      const items = await req.Model.create(req.body)
+      res.send(items)
+    })
+    //修改数据
+    router.put('/:id',async (req,res)=>{
+      const items = await req.Model.findByIdAndUpdate(req.params.id,req.body)
+      res.send(items)
+    })
+    //删除数据
+    router.delete('/:id',async (req,res)=>{
+      await req.Model.findByIdAndDelete(req.params.id,req.body)
+      res.send({
+        success:true,
+        msg:'删除成功'
+      })
+    })
 }

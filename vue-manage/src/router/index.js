@@ -43,6 +43,11 @@ const routes = [
         path:'/role',
         component:()=>import('../views/manageroles.vue'),
         meta:{title:'权限管理',permission:true}
+      },
+      {
+        path:'/editmessage',
+        component:()=>import('../views/editTabs.vue'),
+        meta:{title:'发布消息',permission:true}
       }
     ]
   },
@@ -70,7 +75,6 @@ router.beforeEach((to,from,next)=>{
   NProgress.start()
   document.title = `${to.meta.title}`
   const user = JSON.parse(localStorage.getItem('user'))
-  console.log(user);
   const role = localStorage.role
   if(to.path == '/login'){
     localStorage.clear()
