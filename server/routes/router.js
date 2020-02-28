@@ -36,6 +36,16 @@ module.exports = app =>{
         let path = null
         if(user.role == 'admin'){
             path = [
+              {
+                icon:'el-icon-s-home',
+                index:'dashboard',
+                title:'首页'
+              },
+              {
+                icon:'el-icon-message',
+                index:'tabs',
+                title:'消息'
+              },
                 {
                   icon:'el-icon-edit-outline',
                   index:'editmessage',
@@ -59,6 +69,16 @@ module.exports = app =>{
               ]
         }else{
             path = [
+              {
+                icon:'el-icon-s-home',
+                index:'dashboard',
+                title:'首页'
+              },
+              {
+                icon:'el-icon-message',
+                index:'tabs',
+                title:'消息'
+              },
                 {
                   icon:'el-icon-search',
                   index:'user',
@@ -84,18 +104,27 @@ module.exports = app =>{
     //创建数据
     router.post('/',async (req,res)=>{
       const items = await req.Model.create(req.body)
-      res.send(items)
+      res.send({items,msg:'添加成功'})
     })
     //修改数据
     router.put('/:id',async (req,res)=>{
       const items = await req.Model.findByIdAndUpdate(req.params.id,req.body)
-      res.send(items)
+      res.send({items,msg:'修改成功'})
     })
     //删除数据
     router.delete('/:id',async (req,res)=>{
       await req.Model.findByIdAndDelete(req.params.id,req.body)
       res.send({
         success:true,
+        msg:'删除成功'
+      })
+    })
+    
+    //消息批量删除
+    app.delete('/api/multiple/:id',authMiddleware(),async (req,res) =>{
+      const ids =  req.params.id.split(',')
+      await require('../models/Message').deleteMany({_id:{$in:ids}})
+      res.send({
         msg:'删除成功'
       })
     })

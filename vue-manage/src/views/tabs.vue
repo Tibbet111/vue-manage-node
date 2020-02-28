@@ -114,10 +114,12 @@ export default {
       this.read = this.read.concat(item)
     },
      emptyMes(){
-      this.recycle.forEach(item => {
-        this.$api.delete(`/v2/messages/${item._id}`)     
-      });
-      this.recycle= []
+       let newArray = [];
+       this.recycle.forEach(item=>{
+         (item._id || item._id==0)&& newArray.push(item._id)
+       })
+       this.$api.delete(`/multiple/${newArray.toString()}`)
+       this.recycle = []
     }
   },
   created(){

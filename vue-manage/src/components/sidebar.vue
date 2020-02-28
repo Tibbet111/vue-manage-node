@@ -58,18 +58,7 @@ export default {
   data() {
     return {
       collapse:false,
-      items:[
-        {
-          icon:'el-icon-s-home',
-          index:'dashboard',
-          title:'系统首页'
-        },
-        {
-          icon:'el-icon-message',
-          index:'tabs',
-          title:'消息'
-        }
-      ]
+      items:[]
     };
   },
   methods: {},

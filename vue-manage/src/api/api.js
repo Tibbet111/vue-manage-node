@@ -12,12 +12,19 @@ api.interceptors.request.use(config=>{
         config.headers.Authorization = 'Bearer ' + (localStorage.token)
     }
     return config
+    
 },err=>{
     return Promise.reject(err)
 });
 
 //响应
 api.interceptors.response.use(res=>{
+    if(res.data.msg){
+        Vue.prototype.$message({
+            type:'success',
+            message:res.data.msg
+        }) 
+    }
     return res
 },err=>{
     //若有错误信息显示
