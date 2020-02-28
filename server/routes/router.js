@@ -119,6 +119,12 @@ module.exports = app =>{
         msg:'删除成功'
       })
     })
+
+    //显示当前用户的待办事项
+    app.get('/api/user/things',authMiddleware(),async (req,res)=>{
+      const items = await require('../models/Thing').find({userId:req.query.id})
+      res.send(items)
+    })
     
     //消息批量删除
     app.delete('/api/multiple/:id',authMiddleware(),async (req,res) =>{

@@ -76,7 +76,7 @@ export default {
     return {
        dialogFormVisible:false,
       form:{
-        title:''
+        title:'',
       },
       ruleForm:{
         title:[{ required: true, message: '请输入待办事项', trigger: 'blur' },]
@@ -88,14 +88,18 @@ export default {
       timer:'',
       List:[],
       title:'',
-      menu:[]
+      menu:[],
+      userID:''
     };
   },
   methods: {
     //获取事项
-    async getReadyTings(){
-      const res =  await this.$api.get('/v2/things')
-      this.List = res.data
+     async getReadyTings(){
+      const id = JSON.parse(localStorage.user)._id
+      //const res =  await this.$api.get('/v2/things')
+       const res = await this.$api.get(`/user/things?id=${id}`)
+       console.log(res);
+       this.List = res.data
     },
     //新建事项
     showAdd(){
@@ -108,7 +112,11 @@ export default {
     newThing(formName){
       this.$refs[formName].validate((valid) => {
         if (valid) {
-        this.$api.post('/v2/things',this.form).then(res=>{
+        const para = {
+          title:this.form.title,
+          userId:this.userID
+        }
+        this.$api.post('/v2/things',para).then(res=>{
           this.dialogFormVisible = false
           this.getReadyTings()
         })
@@ -148,6 +156,7 @@ export default {
   created(){
     this.getReadyTings()
     let user = JSON.parse(localStorage.getItem('user'))
+    this.userID = user._id
     this.userAvatar = user.avatar;
     this.name = user.name;
     this.role = user.role;
