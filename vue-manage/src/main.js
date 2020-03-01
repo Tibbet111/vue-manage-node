@@ -13,6 +13,22 @@ Vue.use(ElementUI)
 Vue.config.productionTip = false
 Vue.prototype.$api = api
 
+//头像上传加上token
+Vue.mixin({
+  computed:{
+    uploadUrl(){
+      return this.$api.defaults.baseURL+'/upload'
+    }
+  },
+  methods : {
+    getAuthHeaders(){
+      return {
+        Authorization : `Bearer ${localStorage.token || ''}`
+      }
+    }
+  }
+})
+
 new Vue({
   router,
   render: h => h(App)

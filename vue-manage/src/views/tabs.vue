@@ -17,13 +17,10 @@
             <el-table-column prop="date" width="200" :formatter="formatter"></el-table-column>
             <el-table-column width="120">
               <template slot-scope="scope">
-                <el-button size="small" @click="readMessage(scope.$index)">标为已读</el-button>
+                <el-button size="small" @click="readMessage(scope.$index,scope.row)">标为已读</el-button>
               </template>
             </el-table-column>
           </el-table>
-          <div class="buttonstyle">
-            <el-button type="primary" size="medium" @click="readAll">全部标为已读</el-button>
-          </div>
         </el-tab-pane>
         <!-- 已读消息 -->
         <el-tab-pane :label="`已读消息(${read.length})`" name="second">
@@ -34,35 +31,8 @@
               </template>            
             </el-table-column>
             <el-table-column prop="date" width="180" :formatter="formatter"></el-table-column>
-            <el-table-column width="120">
-              <template slot-scope="scope">
-                <el-button size="small" type="danger" @click="delMessage(scope.$index)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="buttonstyle">
-            <el-button type="danger" size="medium" @click="delAll">全部删除</el-button>
-          </div>
-        </el-tab-pane>
-        <!-- 删除消息 -->
-        <el-tab-pane :label="`回收站(${recycle.length})`" name="third">
-          <el-table :data="recycle" :show-header="false" style="width:100%">
-            <el-table-column>
-              <template slot-scope="scope">
-                <span class="message_title" v-html="`${scope.row.message}`"></span>
-              </template>            
-            </el-table-column>
-            <el-table-column prop="date" width="180" :formatter="formatter"></el-table-column>
-            <el-table-column width="120">
-              <template slot-scope="scope">
-                <el-button size="small" type="primary" @click="resMessage(scope.$index)">还原</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="buttonstyle">
-            <el-button type="danger" size="medium" @click="emptyMes">清空回收站</el-button>
-          </div>
-        </el-tab-pane>
+        </el-table>       
+        </el-tab-pane>        
       </el-tabs>
     </div>
   </div>
@@ -78,7 +48,7 @@ export default {
       message:'first',
       unread:[],
       read:[],
-      recycle:[]
+      curId : JSON.parse(localStorage.user)._id
     };
   },
   methods: {
@@ -88,39 +58,36 @@ export default {
       },
     async init(){
       const res = await this.$api.get('/v2/messages')
-      this.unread = res.data
+      const unreadMsg = res.data
+      const readMsg = await this.$api.get(`/message/msg?id=${this.curId}`)
+      const readMessage = readMsg.data
+      const arr = []
+      for(let i =0;i<unreadMsg.length;i++){
+        const item = unreadMsg[i]
+        if(!readMessage.some(v=> v.messageId._id === item._id)){
+          arr.push(item)
+        }
+      }
+      arr.sort((a,b)=>a>b?1:-1)
+      this.unread = arr
+      this.read = readMessage.map(item=>{
+        return item.messageId
+      })
       bus.$emit('message',this.unread.length)
     },
-    readMessage(index){
+    //读消息
+    readMessage(index,row){
       const item = this.unread.splice(index,1)
       this.read = this.read.concat(item)
+      let para = {
+        userId:this.curId,
+        messageId:row._id
+      }
+      this.$api.post('/message/readMessage',para).then(res=>{
+        console.log(res);
+      })
       bus.$emit('message',this.unread.length)
-    },
-    readAll(){
-      const items = this.unread.splice(0)
-      this.read = this.read.concat(items)
-      bus.$emit('message',this.unread.length)
-    },
-    delMessage(index){
-      const item = this.read.splice(index,1);
-      this.recycle = this.recycle.concat(item)
-    },
-    delAll(){
-      const items = this.read.splice(0);
-      this.recycle = this.recycle.concat(items)
-    },
-    resMessage(index){
-      const item = this.recycle.splice(index,1);
-      this.read = this.read.concat(item)
-    },
-     emptyMes(){
-       let newArray = [];
-       this.recycle.forEach(item=>{
-         (item._id || item._id==0)&& newArray.push(item._id)
-       })
-       this.$api.delete(`/multiple/${newArray.toString()}`)
-       this.recycle = []
-    }
+    },    
   },
   created(){
     this.init()
@@ -129,7 +96,5 @@ export default {
 </script>
 
 <style scoped>
-.buttonstyle{
-  margin-top: 20px;
-}
+
 </style>

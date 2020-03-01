@@ -35,7 +35,8 @@
           <i class="el-icon-caret-bottom"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item  command="loginout">退出登录</el-dropdown-item>
+            <el-dropdown-item><router-link to="/editroleinfo" style="color:#606266">修改个人信息</router-link></el-dropdown-item>
+            <el-dropdown-item  divided  command="loginout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>        
       </div>
@@ -55,7 +56,8 @@ export default {
       fullscreen:false,
       message:'',
       userAvatar:'',
-      username:''
+      username:'',
+      curId : JSON.parse(localStorage.user)._id
     };
   },
   methods: {
@@ -99,7 +101,17 @@ export default {
     },
     async getMessageLen(){
       const res = await this.$api.get('/v2/messages')
-      this.message = res.data.length
+      const unreadMsg = res.data
+      const readMsg = await this.$api.get(`/message/msg?id=${this.curId}`)
+      const readMessage = readMsg.data
+      const arr = []
+      for(let i =0;i<unreadMsg.length;i++){
+        const item = unreadMsg[i]
+        if(!readMessage.some(v=> v.messageId._id === item._id)){
+          arr.push(item)
+        }
+      }
+      this.message = arr.length
     }
   },
   mounted(){

@@ -2,11 +2,17 @@
   <div> 
     <el-button icon="el-icon-plus" type="primary" style="margin-bottom:20px;float:right" @click="newUser">添加</el-button>
     <el-table :data="userRole" highlight-current-row v-loading="loading" style="100%" :header-cell-style="{color:'#606266'}" >
-      <el-table-column type="index" label="序号" header-align="center" align="center" width="250"></el-table-column>
-      <el-table-column prop="name" label="姓名" header-align="center" align="center" width="250"></el-table-column>  
-      <el-table-column prop="username" label="用户名" header-align="center" align="center" width="250"></el-table-column>
-      <el-table-column prop="role" label="权限" header-align="center" align="center" width="250" :formatter="formatRole"></el-table-column>
-      <el-table-column label="操作"  header-align="center"  align="center" min-width="150">  
+      <el-table-column type="index" label="序号" header-align="center" align="center" min-width="180"></el-table-column>
+      <el-table-column prop="name" label="姓名" header-align="center" align="center" min-width="180"></el-table-column>  
+      <el-table-column prop="username" label="用户名" header-align="center" align="center" min-width="180"></el-table-column>
+      <el-table-column prop="role" label="权限" header-align="center" align="center" min-width="180" :formatter="formatRole"></el-table-column>
+      <el-table-column prop="status" label="状态" header-align="center" align="center" min-width="180">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status" type="success">已激活</el-tag>
+          <el-tag v-else type="info">未激活</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作"  header-align="center"  align="center" min-width="180">  
         <template slot-scope="scope">
 		  <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 		  <el-button type="danger" size="small" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
@@ -34,6 +40,10 @@
                 <el-radio label="user">普通用户</el-radio>
             </el-radio-group>
         </el-form-item>
+        <el-form-item label="激活状态">
+          <el-switch  v-model="roleForm.status" active-text="激活" inactive-text="未激活">
+          </el-switch>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
     <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -46,6 +56,7 @@
 <script>
 export default {
   name: '',
+  inject:['reload'],
   data() {
     var checkPass = (rule,value,callback)=>{
 			if (value === '') {
@@ -68,7 +79,8 @@ export default {
             username:'',
             password:'',
             checkpass:'',
-            role:''
+            role:'',
+            status:false
         },
         rules:{
 					name:[{required:true,message:'请输入姓名',trigger:'blur'}],
@@ -104,10 +116,6 @@ export default {
       if (valid) {
         const res =  this.$api.post('v2/admin_users',this.roleForm)
         this.dialogFormVisible = false
-        this.$message({
-          type:'success',
-          message:'新建成功'
-        })
         this.getUser()
       } else {
         console.log('error submit!!');
@@ -127,11 +135,7 @@ export default {
         //alert('编辑!');
         const res = this.$api.put(`v2/admin_users/${this.roleForm._id}`,this.roleForm)
         this.dialogFormVisible = false
-        this.$message({
-          type:'success',
-          message:'修改成功'
-        })
-        this.getUser()
+        this.reload();
       } else {
         console.log('error submit!!');
         return false;
@@ -141,10 +145,6 @@ export default {
     async handleDelete(index,row){
       this.$confirm(`确认删除${row.name}？`,'提示',{type:'warning'}).then(async ()=>{
 			const res = await this.$api.delete(`/v2/admin_users/${row._id}`)
-      this.$message({
-        type:'success',
-        message:res.data.msg
-      })
       this.getUser()
       })
     }

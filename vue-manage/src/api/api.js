@@ -11,6 +11,7 @@ api.interceptors.request.use(config=>{
     if(localStorage.token){
         config.headers.Authorization = 'Bearer ' + (localStorage.token)
     }
+   
     return config
     
 },err=>{

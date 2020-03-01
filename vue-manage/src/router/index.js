@@ -48,6 +48,11 @@ const routes = [
         path:'/editmessage',
         component:()=>import('../views/editTabs.vue'),
         meta:{title:'发布消息',permission:true}
+      },
+      {
+        path:'/editroleinfo',
+        component:()=>import('../views/editRoleInfo.vue'),
+        meta:{title:'修改个人信息'}
       }
     ]
   },

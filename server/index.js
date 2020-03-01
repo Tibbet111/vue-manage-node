@@ -12,6 +12,8 @@ require('./db/db')(app)
 require('./routes/router')(app)
 //token的密匙
 app.set('secret','tibbet')
+//使用静态资源文件
+app.use('/uploads',express.static(__dirname + '/uploads'))
 
 app.listen(3000,()=>{
     console.log("http://localhost:3000");

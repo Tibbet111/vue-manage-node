@@ -98,7 +98,6 @@ export default {
       const id = JSON.parse(localStorage.user)._id
       //const res =  await this.$api.get('/v2/things')
        const res = await this.$api.get(`/user/things?id=${id}`)
-       console.log(res);
        this.List = res.data
     },
     //新建事项
@@ -232,6 +231,9 @@ ul{
       font-size: 30px;
       color: #333;
       transition: all .3s;
+    }
+    i:hover{
+      background-color: #DCDCDC;
     }
     li:first-child{
       position: relative;
