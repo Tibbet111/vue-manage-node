@@ -27,12 +27,12 @@ const routes = [
       {
         path:'/userinfo',
         component:()=>import('../views/userinfo.vue'),
-        meta:{title:'编辑用户信息',permission:true}
+        meta:{title:'编辑员工信息',permission:true}
       },
       {
         path:'/user',
         component:()=>import('../views/user.vue'),
-        meta:{title:'查询用户信息'}
+        meta:{title:'查询员工信息'}
       },
       {
         path:'/tabs',

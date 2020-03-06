@@ -34,7 +34,7 @@
     </el-table>
     <!-- 批量删除按钮 -->
     <el-button type="danger" @click="batchRemove" style="margin-top:15px" :disabled="this.seles.length===0">批量删除</el-button>
-    <pagination style="float:right" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getInfo" />
+    <pagination   style="float:right" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getInfo" />
 
     <!-- 添加，编辑弹窗 -->
     <el-dialog :title="status=='new'?'添加信息':'编辑信息'" :visible.sync="dialogFormVisible" width="600px">
@@ -127,7 +127,7 @@ export default {
   },
   methods: {
    formatter(row, column) {
-        const time = dayjs(row.date).format('YYYY-MM-DD')
+        const time = dayjs(row.entrytime).format('YYYY-MM-DD')
         return time
       },
     selsChange(seles){
@@ -147,7 +147,19 @@ export default {
     },
     searchUser(){
       this.listQuery.page = 1
-      this.getInfo()
+      this.$api.get('/employee/list',{
+        params:{
+          page : this.listQuery.page,
+          limit : this.listQuery.limit,
+          value : this.search.value
+        }
+      }).then(res=>{
+        this.users = res.data.searchUser
+        this.total = res.data.total
+      })
+      if(this.search.value == ''){
+        this.getInfo()
+      }
     },
     //新建员工信息
     newUser(){

@@ -52,12 +52,12 @@ module.exports = app =>{
                 {
                   icon:'el-icon-s-custom',
                   index:'userinfo',
-                  title:'编辑用户信息'
+                  title:'编辑员工信息'
                 },
                 {
                   icon:'el-icon-search',
                   index:'user',
-                  title:'查询用户信息'
+                  title:'查询员工信息'
                 },
                 {
                   icon:'el-icon-user-solid',
@@ -80,7 +80,7 @@ module.exports = app =>{
               {
                 icon:'el-icon-search',
                 index:'user',
-                title:'查询用户信息'
+                title:'查询员工信息'
               },
               {
                 icon:'el-icon-edit',
@@ -174,22 +174,23 @@ module.exports = app =>{
       if(page<1){
         page = 1;
       }
-      employee.find({},(err,doc)=>{
+      employee.find({
+        $or:[
+        {name:{'$regex': value, $options: '$i'}},
+        {department:{'$regex': value, $options: '$i'}},
+      ]
+    },(err,doc)=>{
         if(err) return res.status(411).send({message:'获取失败'})
         let total = doc.length;
-        employee.find({
-          $or:[
-            {name:{'$regex': value, $options: '$i'}},
-            {department:{'$regex': value, $options: '$i'}},
-          ]
-        }).skip((parseInt(page)-1)*parseInt(limit)).limit(parseInt(limit)).exec(function (err,docs) {
+        employee.find({}).skip((parseInt(page)-1)*parseInt(limit)).limit(parseInt(limit)).exec(function (err,docs) {
           if(err){
             console.log(err);
             return res.status(411).send({message:'获取失败'})
           }
           return res.send({
             total:total,
-            employee:docs
+            employee:docs,
+            searchUser:doc
           })
           })
       })
