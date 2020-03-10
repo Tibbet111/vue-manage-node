@@ -5,6 +5,18 @@
             <span>修改个人信息</span>
           </div>
       <el-form  :model="userInfo" :rules="rules" ref="userInfo" label-width="100px" style="margin-top:20px">
+        <el-form-item label="头像">
+              <el-upload
+  class="avatar-uploader"
+  :action="uploadUrl"
+  :headers="getAuthHeaders()"
+  :before-upload="beforeAvatarUpload"
+  :show-file-list="false"
+  :on-success="res => $set(userInfo,'avatar',res.url)">
+  <img v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar">
+  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+</el-upload>
+          </el-form-item>
         <el-form-item label="我的角色" style="width:350px">
             <el-input :disabled="true" v-model="userInfo.role"></el-input>
         </el-form-item>
@@ -20,18 +32,7 @@
         <el-form-item label="确认密码" style="width:350px" prop="checkpass">
             <el-input v-model="userInfo.checkpass" type="password"></el-input>
         </el-form-item>
-        <el-form-item label="头像">
-              <el-upload
-  class="avatar-uploader"
-  :action="uploadUrl"
-  :headers="getAuthHeaders()"
-  :before-upload="beforeAvatarUpload"
-  :show-file-list="false"
-  :on-success="res => $set(userInfo,'avatar',res.url)">
-  <img v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar">
-  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-</el-upload>
-          </el-form-item>
+        
           <el-button type="primary" @click="submit('userInfo')" class="button">确认</el-button>
           <el-button @click="reset" class="button">重新填写</el-button>
       </el-form>
@@ -138,7 +139,7 @@ export default {
     text-align: center;
   }
   .avatar {
-    min-width: 6rem;
+    min-width: 6.2rem;
     height: 6rem;
     display: block;
   }

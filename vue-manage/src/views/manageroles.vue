@@ -95,7 +95,9 @@ export default {
       return row.role == 'admin'?'管理员':'普通用户'
     },
     async getUser(){
+      this.loading = true
       const res = await this.$api.get('/v2/admin_users')
+      this.loading = false
       this.userRole = res.data
     },
     //新建权限角色

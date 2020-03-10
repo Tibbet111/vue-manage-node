@@ -8,7 +8,7 @@
           </div>
           <div class="userinfo">
           <img v-if="userAvatar" :src="userAvatar">
-          <avatar v-else :fullname="name" style="cursor:default" :size="140"></avatar>
+          <avatar v-else :fullname="name" style="cursor:default" :size="140" color="#00BFFF"></avatar>
           <p>{{name}}</p>
           <span>{{role}}</span>
           </div>
