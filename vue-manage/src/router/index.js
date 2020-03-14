@@ -79,12 +79,12 @@ const router = new VueRouter({
 router.beforeEach((to,from,next)=>{
   NProgress.start()
   document.title = `${to.meta.title}`
-  const user = JSON.parse(localStorage.getItem('user'))
+  const token = localStorage.getItem('token')
   const role = localStorage.role
   if(to.path == '/login'){
     localStorage.clear()
   }
-  if(!user && to.path !=='/login'){
+  if(!token && to.path !=='/login'){
     next('/login')
     NProgress.done()
   }else if(to.meta.permission && role){

@@ -32,6 +32,7 @@
                 :index="threeItem.index"
               >{{ threeItem.title }}</el-menu-item>
             </el-submenu>
+            <!-- 子元素没有子元素 -->
               <el-menu-item
                 v-else
                 :index="subItem.index"
@@ -40,6 +41,7 @@
           </template>
         </el-submenu>
       </template>
+      <!-- 没有子元素直接显示 -->
       <template v-else>
         <el-menu-item :index="item.index" :key="item.index">
           <i :class="item.icon"></i>
@@ -60,9 +62,9 @@ export default {
       collapse:false,
       items:[
         {
-                icon:'el-icon-s-home',
-                index:'dashboard',
-                title:'首页'
+          icon:'el-icon-s-home',
+          index:'dashboard',
+          title:'首页'
         },
       ]
     };
@@ -80,9 +82,8 @@ export default {
       bus.$emit('collapse-content',msg);
     })
     var path = JSON.parse(localStorage.getItem('path'))
-    for(let i=0;i<path.length;i++){
-      this.items.push(path[i])
-    }
+    this.items = this.items.concat(path)
+    console.log(this.items);
   }
 };
 </script>
