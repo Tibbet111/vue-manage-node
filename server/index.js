@@ -1,7 +1,8 @@
 const express = require('express')
 
-const app = express()
 
+const app = express()
+ 
 //跨域
 app.use(require('cors')())
 //使用json

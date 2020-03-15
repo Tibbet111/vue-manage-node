@@ -3,6 +3,8 @@ module.exports = app =>{
     const adminUser = require('../models/AdminUser')
     const router = express.Router({mergeParams:true})
     const jwt = require('jsonwebtoken')
+    const svgCaptcha = require('svg-captcha');  //验证码
+  
 
     process.on('unhandledRejection', (reason, p) => {
         console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
@@ -14,6 +16,19 @@ module.exports = app =>{
        message:err.message || '发生错误'
     })
  })
+    //获取验证码
+    app.get('/api/captcha',(req,res)=>{
+      const cap = svgCaptcha.create({
+        size: 4, // 验证码长度
+        ignoreChars: '0o1i', // 验证码字符中排除 0o1i
+        noise: 1, // 干扰线条的数量
+        color: true ,// 验证码的字符是否有颜色，默认没有，如果设定了背景，则默认有
+        background: '#' + Math.random().toString(16).substr(2, 6).toUpperCase(), // 验证码图片背景颜色
+      })
+      res.type('svg'),
+      res.send({img:cap.data,text:cap.text.toLowerCase()})
+    })
+
  
     //验证登录
     app.post('/api/login',async (req,res)=>{
@@ -23,19 +38,22 @@ module.exports = app =>{
         //如果该用户不存在返回422报错
         if(!user){
             res.status(422).send({message:"用户名不存在"})
+            return
         }
         //如果当前用户没激活不让登陆
         if(!user.status){
           res.status(422).send({message:"当前用户没有激活"})
+          return
         }
         //用户存在则校验密码
         const isValid = require('bcrypt').compareSync(password,user.password)
         //如果密码不正确返回422报错
        if(!isValid){
            res.status(422).send({message:"密码错误"})
+           return
        }
         //全部正确则返回前端一个token和菜单
-        const token = jwt.sign({id:user._id},app.get('secret'))
+        const token = jwt.sign({id:user._id},app.get('secret'),{ expiresIn: '1h' })
         let path = null
         if(user.role == 'admin'){
             path = [

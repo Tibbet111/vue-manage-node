@@ -3,7 +3,8 @@ import Vue from 'vue'
 import router from '../router/index'
 
 const api = axios.create({
-    baseURL:'http://localhost:3000/api'
+    baseURL:'http://localhost:3000/api',
+    timeout:5000,
 })
 
 //请求
@@ -28,8 +29,18 @@ api.interceptors.response.use(res=>{
     }
     return res
 },err=>{
+    if(err.response.status === 411){
+        Vue.prototype.$confirm(err.response.data.message,'提示',{
+        confirmButtonText: '确定',
+        showClose: false,
+        showCancelButton: false,
+        type: 'warning'
+        }).then(()=>{
+            router.push('/login')
+        })
+    }
     //若有错误信息显示
-    if(err){
+     else if(err && err.response.data.message){
         Vue.prototype.$message({
         type:'error',
         message:err.response.data.message

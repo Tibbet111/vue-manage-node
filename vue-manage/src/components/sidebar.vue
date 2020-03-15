@@ -83,7 +83,6 @@ export default {
     })
     var path = JSON.parse(localStorage.getItem('path'))
     this.items = this.items.concat(path)
-    console.log(this.items);
   }
 };
 </script>

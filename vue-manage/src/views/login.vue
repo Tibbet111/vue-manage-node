@@ -8,6 +8,11 @@
     <el-form-item prop="password">
       <i class="el-icon-lock"></i><el-input type="password" v-model="ruleForm.password" auto-complete="off" placeholder="密码"></el-input>
     </el-form-item>
+    <div class="captcha">
+    <input type="text" v-model="captcha" placeholder="请输入验证码" class="inputCap">
+    <div v-html="svgData" class="svgImg"></div>
+    </div>
+    <a @click.prevent="toggleVerify" class="changeSvg">看不清？点击换一张图片</a>
     <el-form-item style="width:100%;">
       <el-button type="primary" style="width:100%;" native-type="submit" class="button">登录</el-button>
     </el-form-item>
@@ -21,13 +26,17 @@ export default {
   data() {
     return {
         ruleForm:{
-            username:'ybw',
-            password:'980726',
+            username:'',
+            password:'',
         },
         rules:{
             username:[{required:true,message:'请输入账号',trigger:'blur'}],
             password:[{required:true,message:'请输入密码',trigger:'blur'}]
         },
+        verifyLoadState:false,
+        svgData:'',
+        svgText:'',
+        captcha:''
     };
   },
   methods: {
@@ -42,6 +51,10 @@ export default {
         });
       }, 
       async login(){
+          if(this.captcha == ''){
+            this.$confirm('请输入验证码','提示',{})
+          }
+          else if(this.svgText == this.captcha.toLowerCase()){
           const res = await this.$api.post('/login',this.ruleForm)
           const {user,path,token} = res.data
           localStorage.token = token
@@ -53,8 +66,27 @@ export default {
               message:'登陆成功'
           })
           this.$router.push('/')
+          }else{
+            this.$message({
+              type:'error',
+              message:'验证码错误'
+            })
+          }
+          
+      },
+      getImg(){
+        this.$api.get('/captcha').then(res=>{
+          this.svgData = res.data.img
+          this.svgText = res.data.text
+        })
+      },
+      toggleVerify(){
+        this.getImg()
       }
   },
+  created(){
+    this.getImg()
+  }
 };
 </script>
 
@@ -96,12 +128,55 @@ export default {
         font-size: 25px;
         float:left;
       }
+      .el-form-item__error{
+        left:50px;
+        top: 65%;
+      }
       .button{
       width: 200px;
       border-radius: 15px;
       border: 0;
       background: linear-gradient(to right, #5f2c82, #49a09d);
+      margin-top: 15px;
       }
 }
+}
+.changeSvg{
+  color: #fff;
+  border-bottom: 1px solid #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  position: relative;
+  left: 120px;
+  bottom: 15px;
+  &:hover{
+    color:#4169E1;
+    border-color: #4169E1;
+  }
+}
+.captcha{
+  display: flex;
+  align-items: end;
+  justify-content: space-evenly;
+  .inputCap{
+     border-radius: 5px;
+     background-clip: padding-box;
+     border: 0px solid #eaeaea;
+     outline: none;
+     border-bottom: 1px solid #fff;
+     background: #ffffff00;
+     color: #fff;
+     padding: 5px 0 10px 13px;
+     margin-left: 7px;
+  }
+  .inputCap::placeholder{
+    color:	#C0C0C0;
+  }
+  .svgImg{
+    width: 100px;
+    position: relative;
+    bottom: 20px;
+    right: 5px;
+  }
 }
 </style>
