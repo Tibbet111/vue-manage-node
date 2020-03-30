@@ -40,10 +40,10 @@
     <el-dialog :title="status=='new'?'添加信息':'编辑信息'" :visible.sync="dialogFormVisible" width="600px">
   <el-form :model="userForm" :rules="rules" ref="userForm" label-width="70px">
    <el-form-item label="姓名" prop="name">
-     <el-input v-model="userForm.name"></el-input>
+     <el-input v-model="userForm.name" :disabled="status == 'edit'"></el-input>
    </el-form-item>
    <el-form-item label="性别">
-     <el-radio-group v-model="userForm.sex">
+     <el-radio-group v-model="userForm.sex" :disabled="status == 'edit'">
        <el-radio label="男"></el-radio>
        <el-radio label="女"></el-radio>
      </el-radio-group>

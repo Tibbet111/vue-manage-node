@@ -45,6 +45,7 @@ api.interceptors.response.use(res=>{
         showCancelButton: false,
         type: 'warning'
         }).then(()=>{
+            localStorage.removeItem('token')
             loading.close()
             router.push('/login')
         })

@@ -1,6 +1,6 @@
 <template>
   <div id="container">
-    <el-form :model="ruleForm" @submit.native.prevent="handleSubmit" :rules="rules" ref="ruleForm" label-position="left" label-width="0px" class="login-container">
+    <el-form :model="ruleForm" @submit.native.prevent="handleSubmit" :rules="loginRules" ref="ruleForm" label-position="left" label-width="0px" class="login-container">
     <h3 class="title">用户登录</h3>
     <el-form-item prop="username">
       <i class="el-icon-user"></i><el-input type="text" v-model="ruleForm.username" auto-complete="off" placeholder="账号"></el-input>
@@ -24,7 +24,7 @@
 
     <!-- 注册 -->
     <el-dialog title="注册" :visible.sync="dialogFormVisible" width="500px" :modal-append-to-body='false'>
-      <el-form :model="roleForm" :rules="rules" ref="roleForm" label-width="70px">
+      <el-form :model="roleForm" :rules="registerRules" ref="roleForm" label-width="70px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="roleForm.name"></el-input>
         </el-form-item>
@@ -65,7 +65,7 @@ export default {
             password:'',
             captcha:''
         },
-        rules:{
+        loginRules:{
             username:[{required:true,message:'请输入账号',trigger:'blur'}],
             password:[{required:true,message:'请输入密码',trigger:'blur'}],
             captcha:[{required:true,message:'请输入验证码',trigger:'blur'}]
@@ -81,7 +81,7 @@ export default {
             password:'',
             checkpass:'',
         },
-        rules:{
+        registerRules:{
           name:[{required:true,message:'请输入姓名',trigger:'blur'}],
           username:[{required:true,message:'请输入用户名',trigger:'blur'}],
 					password:[{required:true,message:'请输入密码',trigger:'blur'},

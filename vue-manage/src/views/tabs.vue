@@ -76,16 +76,14 @@ export default {
       bus.$emit('message',this.unread.length)
     },
     //读消息
-    readMessage(index,row){
+    async readMessage(index,row){
       const item = this.unread.splice(index,1)
       this.read = this.read.concat(item)
       let para = {
         userId:this.curId,
         messageId:row._id
       }
-      this.$api.post('/message/readMessage',para).then(res=>{
-        console.log(res);
-      })
+      await this.$api.post('/message/readMessage',para)
       bus.$emit('message',this.unread.length)
     },    
   },

@@ -129,7 +129,7 @@ module.exports = app =>{
 
     //登录校验中间件
     const authMiddleware = require('../middleware/auth')
-    //资源中渐渐
+    //资源中间件
     const resourceMiddleware = require('../middleware/resource')
     //通用增删改查接口
     app.use('/api/v2/:resource',authMiddleware(),resourceMiddleware(),router)
