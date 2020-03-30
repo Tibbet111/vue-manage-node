@@ -3,7 +3,7 @@
     <div class="toolbar">
       <el-form :inline="true" :model="search">
         <el-form-item>
-          <el-input v-model="search.value" placeholder="输入姓名或部门"></el-input>
+          <el-input v-model="search.value" placeholder="输入姓名"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button icon="el-icon-search" type="primary" @click="searchUser">查询</el-button>
@@ -22,7 +22,7 @@
       <el-table-column prop="name" label="姓名" header-align="center" align="center" min-width="130"></el-table-column>
       <el-table-column prop="sex" label="性别" header-align="center" align="center" min-width="130"></el-table-column>
       <el-table-column prop="age" label="年龄" header-align="center" align="center" min-width="150"></el-table-column>
-      <el-table-column prop="department" label="部门" header-align="center" align="center" min-width="150"></el-table-column>
+      <el-table-column prop="department.name" label="部门" header-align="center" align="center" min-width="150"></el-table-column>
       <el-table-column prop="entrytime" label="入职时间" header-align="center" align="center" min-width="170" :formatter="formatter"></el-table-column>
       <el-table-column prop="phone" label="手机" header-align="center" align="center" min-width="170"></el-table-column>
       <el-table-column label="操作"  header-align="center"  align="center" min-width="170">
@@ -53,12 +53,7 @@
    </el-form-item>
    <el-form-item label="部门" prop="department">
      <el-select v-model="userForm.department" placeholder="请选择部门">
-       <el-option label="销售部" value="销售部"></el-option>
-       <el-option label="研发部" value="研发部"></el-option>
-       <el-option label="人事部" value="人事部"></el-option>
-       <el-option label="财务部" value="财务部"></el-option>
-       <el-option label="安保部" value="安保部"></el-option>
-       <el-option label="公关部" value="公关部"></el-option>
+        <el-option v-for="item in department" :key="item._id" :label="item.name" :value="item._id"></el-option>
      </el-select>
    </el-form-item>
    <el-form-item label="入职时间" prop="entrytime">
@@ -101,6 +96,7 @@ export default {
       users:[],
       listLoading:false,
       seles:[],
+      department:[],
       userForm:{
         _id:undefined,
         name:'',
@@ -145,6 +141,11 @@ export default {
         this.total = res.data.total
       })
     },
+    //获取部门
+    async getDepartment(){
+      const res = await this.$api.get('/v2/departments')
+      this.department = res.data
+    },
     searchUser(){
       this.listQuery.page = 1
       this.$api.get('/employee/list',{
@@ -187,9 +188,10 @@ export default {
         });
     },
     //编辑员工信息
-    handleEdit(index,row){
+    async handleEdit(index,row){
       this.dialogFormVisible = true
-      this.userForm = Object.assign({},row)
+      const editData = await this.$api.get(`/v2/employees/${row._id}`)
+      this.userForm = editData.data
       this.status = 'edit'
     },
     editUser(formName){
@@ -223,6 +225,7 @@ export default {
   },
   created(){
     this.getInfo()
+    this.getDepartment()
   },
 };
 </script>

@@ -9,14 +9,40 @@
       <i class="el-icon-lock"></i><el-input type="password" v-model="ruleForm.password" auto-complete="off" placeholder="密码"></el-input>
     </el-form-item>
     <div class="captcha">
-    <input type="text" v-model="captcha" placeholder="请输入验证码" class="inputCap">
+    <!-- <input type="text" v-model="captcha" placeholder="请输入验证码" class="inputCap"> -->
+    <el-form-item prop="captcha">  
+      <i class="iconfont icon-yanzhengma" style="right:30px;top:20px"></i><el-input v-model="ruleForm.captcha" placeholder="请输入验证码"></el-input>
+    </el-form-item>
     <div v-html="svgData" class="svgImg"></div>
     </div>
     <a @click.prevent="toggleVerify" class="changeSvg">看不清？点击换一张图片</a>
     <el-form-item style="width:100%;">
       <el-button type="primary" style="width:100%;" native-type="submit" class="button">登录</el-button>
     </el-form-item>
+    <a @click.prevent="register" class="register">点我注册</a>
     </el-form>
+
+    <!-- 注册 -->
+    <el-dialog title="注册" :visible.sync="dialogFormVisible" width="500px" :modal-append-to-body='false'>
+      <el-form :model="roleForm" :rules="rules" ref="roleForm" label-width="70px">
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="roleForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="roleForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input type="password" v-model="roleForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="checkpass">
+          <el-input type="password" v-model="roleForm.checkpass"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+    <el-button @click="clear">清 空</el-button>
+    <el-button type="primary" :loading="roleLoading" @click="addRole('roleForm')">确 定</el-button>
+  </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -24,22 +50,65 @@
 export default {
   name: '',
   data() {
+     var checkPass = (rule,value,callback)=>{
+			if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value !== this.roleForm.password) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+		}
     return {
         ruleForm:{
             username:'',
             password:'',
+            captcha:''
         },
         rules:{
             username:[{required:true,message:'请输入账号',trigger:'blur'}],
-            password:[{required:true,message:'请输入密码',trigger:'blur'}]
+            password:[{required:true,message:'请输入密码',trigger:'blur'}],
+            captcha:[{required:true,message:'请输入验证码',trigger:'blur'}]
         },
         verifyLoadState:false,
+        dialogFormVisible:false,
         svgData:'',
         svgText:'',
-        captcha:''
+        captcha:'',
+        roleForm:{
+            name:'',
+            username:'',
+            password:'',
+            checkpass:'',
+        },
+        rules:{
+          name:[{required:true,message:'请输入姓名',trigger:'blur'}],
+          username:[{required:true,message:'请输入用户名',trigger:'blur'}],
+					password:[{required:true,message:'请输入密码',trigger:'blur'},
+										{min:6,max:11,message:'请输入6-11位密码',trigger:'blur'}],
+					checkpass:[{validator:checkPass,trigger:'blur'}],
+        },
+        roleLoading:false
     };
   },
   methods: {
+       clear(){
+         this.roleForm={
+            name:'',
+            username:'',
+            password:'',
+            checkpass:'',
+        }
+       },
+       register(){
+         this.dialogFormVisible = true
+         this.roleForm={
+            name:'',
+            username:'',
+            password:'',
+            checkpass:'',
+         }
+       },
        handleSubmit() {
          this.$refs.ruleForm.validate((valid) => {
           if (valid) {
@@ -50,29 +119,25 @@ export default {
           }
         });
       }, 
-      async login(){
-          if(this.captcha == ''){
-            this.$confirm('请输入验证码','提示',{})
-          }
-          else if(this.svgText == this.captcha.toLowerCase()){
-          const res = await this.$api.post('/login',this.ruleForm)
-          const {user,path,token} = res.data
-          localStorage.token = token
-          localStorage.setItem('user',JSON.stringify(user))
-          localStorage.setItem('path',JSON.stringify(path))
-          localStorage.role = user.role
-          this.$message({
+      async login(){       
+           if(this.svgText == this.ruleForm.captcha.toLowerCase()){
+           const res = await this.$api.post('/login',this.ruleForm)
+            const {user,path,token} = res.data
+            localStorage.token = token
+            localStorage.setItem('user',JSON.stringify(user))
+            localStorage.setItem('path',JSON.stringify(path))
+            localStorage.role = user.role
+            this.$message({
               type:'success',
               message:'登陆成功'
-          })
+            })
           this.$router.push('/')
           }else{
             this.$message({
               type:'error',
               message:'验证码错误'
             })
-          }
-          
+          }    
       },
       getImg(){
         this.$api.get('/captcha').then(res=>{
@@ -82,7 +147,23 @@ export default {
       },
       toggleVerify(){
         this.getImg()
+      },
+      // 注册
+      async addRole(formName){
+    	this.$refs[formName].validate(async (valid) => {
+      if (valid) {
+        const res = await this.$api.post('/register',this.roleForm)
+        this.dialogFormVisible = false
+        this.$message({
+          type:'success',
+          message:'请等待管理员审核'
+        })
+      } else {
+        console.log('error submit!!');
+        return false;
       }
+   	});
+		},
   },
   created(){
     this.getImg()
@@ -137,7 +218,6 @@ export default {
       border-radius: 15px;
       border: 0;
       background: linear-gradient(to right, #5f2c82, #49a09d);
-      margin-top: 15px;
       }
 }
 }
@@ -147,17 +227,33 @@ export default {
   font-size: 0.8rem;
   cursor: pointer;
   position: relative;
-  left: 120px;
-  bottom: 15px;
+  left: 125px;
+  bottom: 40px;
   &:hover{
     color:#4169E1;
     border-color: #4169E1;
   }
 }
+.register{
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+  left: 11rem;
+  &:hover{
+    color:#4169E1;
+  }
+}
 .captcha{
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-evenly;
+  .el-input__inner{
+    width: 160px !important;
+  }
+  .el-form-item__error{
+        left:20px !important;
+        top: 70% !important;
+      }
   .inputCap{
      border-radius: 5px;
      background-clip: padding-box;

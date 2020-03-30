@@ -3,7 +3,7 @@
     <div class="toolbar">
       <el-form :inline="true" :model="search">
         <el-form-item>
-          <el-input v-model="search.value" placeholder="输入姓名或部门"></el-input>
+          <el-input v-model="search.value" placeholder="输入姓名"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button icon="el-icon-search" type="primary" @click="searchUser">查询</el-button>
@@ -16,7 +16,7 @@
       <el-table-column prop="name" label="姓名" header-align="center" align="center" min-width="130"></el-table-column>
       <el-table-column prop="sex" label="性别" header-align="center" align="center" min-width="130"></el-table-column>
       <el-table-column prop="age" label="年龄" header-align="center" align="center" min-width="150"></el-table-column>
-      <el-table-column prop="department" label="部门" header-align="center" align="center" min-width="150"></el-table-column>
+      <el-table-column prop="department.name" label="部门" header-align="center" align="center" min-width="150"></el-table-column>
       <el-table-column prop="entrytime" label="入职时间" :formatter="formatter" header-align="center" align="center" min-width="170"></el-table-column>
       <el-table-column prop="phone" label="手机" header-align="center" align="center" min-width="170"></el-table-column>
     </el-table>

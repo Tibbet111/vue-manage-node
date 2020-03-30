@@ -53,6 +53,11 @@ const routes = [
         path:'/editroleinfo',
         component:()=>import('../views/editRoleInfo.vue'),
         meta:{title:'修改个人信息'}
+      },
+      {
+        path:'/department',
+        component:()=>import('../views/department.vue'),
+        meta:{title:'部门管理',permission:true}
       }
     ]
   },

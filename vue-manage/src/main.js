@@ -8,6 +8,8 @@ import router from './router'
 import './assets/style.scss'
 import api from './api/api'
 
+import './assets/iconfont/iconfont.css'
+
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false

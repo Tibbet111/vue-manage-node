@@ -23,16 +23,16 @@
     <el-dialog :title="status=='new'?'添加角色':'修改角色'" :visible.sync="dialogFormVisible" width="500px">
       <el-form :model="roleForm" :rules="rules" ref="roleForm" label-width="70px">
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="roleForm.name"></el-input>
+          <el-input v-model="roleForm.name" :disabled="status=='edit'"></el-input>
         </el-form-item>
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="roleForm.username"></el-input>
+          <el-input v-model="roleForm.username" :disabled="status=='edit'"></el-input>
         </el-form-item>
-        <el-form-item v-show="status == 'new'" label="密码" prop="password">
-          <el-input v-model="roleForm.password"></el-input>
+        <el-form-item v-show="status == 'new'" label="密码"  prop="password">
+          <el-input type="password" v-model="roleForm.password"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" v-show="status == 'new'" prop="checkpass">
-          <el-input v-model="roleForm.checkpass"></el-input>
+          <el-input type="password" v-model="roleForm.checkpass"></el-input>
         </el-form-item>
         <el-form-item label="权限" required>
             <el-radio-group v-model="roleForm.role">
@@ -83,7 +83,8 @@ export default {
             status:false
         },
         rules:{
-					name:[{required:true,message:'请输入姓名',trigger:'blur'}],
+          name:[{required:true,message:'请输入姓名',trigger:'blur'}],
+          username:[{required:true,message:'请输入姓名',trigger:'blur'}],
 					password:[{message:'请输入密码',trigger:'blur'},
 										{min:6,max:11,message:'请输入6-11位密码',trigger:'blur'}],
 					checkpass:[{validator:checkPass,trigger:'blur'}],
@@ -114,9 +115,9 @@ export default {
 			this.dialogFormVisible = true
     },
     async addRole(formName){
-    	this.$refs[formName].validate((valid) => {
+    	this.$refs[formName].validate(async (valid) => {
       if (valid) {
-        const res =  this.$api.post('v2/admin_users',this.roleForm)
+        const res = await this.$api.post('/register',this.roleForm)
         this.dialogFormVisible = false
         this.getUser()
       } else {
@@ -135,7 +136,7 @@ export default {
     	this.$refs[formName].validate((valid) => {
       if (valid) {
         //alert('编辑!');
-        const res = this.$api.put(`v2/admin_users/${this.roleForm._id}`,this.roleForm)
+        const res = this.$api.put(`/v2/admin_users/${this.roleForm._id}`,this.roleForm)
         this.dialogFormVisible = false
         this.reload();
       } else {

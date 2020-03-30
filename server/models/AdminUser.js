@@ -13,9 +13,9 @@ const schema = new mongoose.Schema({
         }
     },
     name:{type:String},
-    role:{type:String},
+    role:{type:String,default:'user'},
     avatar:{type:String},
-    status:{type:Boolean}
+    status:{type:Boolean,default:false}
 })
 
 module.exports = mongoose.model('AdminUser', schema)

@@ -29,6 +29,18 @@ module.exports = app =>{
       res.send({img:cap.data,text:cap.text.toLowerCase()})
     })
 
+    //注册
+    app.post('/api/register',async (req,res)=>{
+      const username = req.body.username
+      const isExist = await adminUser.findOne({username})
+      if(isExist){
+        res.status(422).send({message:"该用户已经存在"})
+        return
+      }
+       const items = await adminUser.create(req.body)
+       res.send(items)
+    })
+
  
     //验证登录
     app.post('/api/login',async (req,res)=>{
@@ -40,11 +52,6 @@ module.exports = app =>{
             res.status(422).send({message:"用户名不存在"})
             return
         }
-        //如果当前用户没激活不让登陆
-        if(!user.status){
-          res.status(422).send({message:"当前用户没有激活"})
-          return
-        }
         //用户存在则校验密码
         const isValid = require('bcrypt').compareSync(password,user.password)
         //如果密码不正确返回422报错
@@ -52,6 +59,11 @@ module.exports = app =>{
            res.status(422).send({message:"密码错误"})
            return
        }
+       //如果当前用户没激活不让登陆
+       if(!user.status){
+        res.status(422).send({message:"当前用户没有激活"})
+        return
+      }
         //全部正确则返回前端一个token和菜单
         const token = jwt.sign({id:user._id},app.get('secret'),{ expiresIn: '1h' })
         let path = null
@@ -81,6 +93,11 @@ module.exports = app =>{
                   icon:'el-icon-user-solid',
                   index:'role',
                   title:'编辑权限信息'
+                },
+                {
+                  icon:'el-icon-coordinate',
+                  index:'department',
+                  title:'编辑部门信息'
                 },
                 {
                   icon:'el-icon-edit',
@@ -119,9 +136,18 @@ module.exports = app =>{
 
     //获取数据
     router.get('/',async (req,res)=>{
-      const items = await req.Model.find()
+      const queryOptions = {}
+       if(req.Model.modelName == 'Department'){
+          queryOptions.populate = { path: 'owner', select: 'name' }
+       }
+      const items = await req.Model.find().setOptions(queryOptions)
       res.send(items)
     })
+     //获取某个详情信息
+     router.get('/:id',async(req,res)=>{  
+      const model = await req.Model.findById(req.params.id)
+      res.send(model)
+   }) 
     //创建数据
     router.post('/',async (req,res)=>{
       const items = await req.Model.create(req.body)
@@ -195,15 +221,14 @@ module.exports = app =>{
       employee.find({
         $or:[
         {name:{'$regex': value, $options: '$i'}},
-        {department:{'$regex': value, $options: '$i'}},
       ]
     },(err,doc)=>{
-        if(err) return res.status(411).send({message:'获取失败'})
+        if(err) return res.status(400).send({message:'获取失败'})
         let total = doc.length;
-        employee.find({}).skip((parseInt(page)-1)*parseInt(limit)).limit(parseInt(limit)).exec(function (err,docs) {
+        employee.find({}).populate('department','name').skip((parseInt(page)-1)*parseInt(limit)).limit(parseInt(limit)).exec(function (err,docs) {
           if(err){
             console.log(err);
-            return res.status(411).send({message:'获取失败'})
+            return res.status(400).send({message:'获取失败'})
           }
           return res.send({
             total:total,
@@ -211,19 +236,40 @@ module.exports = app =>{
             searchUser:doc
           })
           })
-      })
+      }).populate('department','name')
     })
+    
 
     //批量删除员工
     app.delete('/api/employee/delete/:id', async (req,res)=>{
       const ids =  req.params.id.split(',')
       await employee.deleteMany({_id:{$in:ids}},(err,doc)=>{
         if(err){
-          return res.status(411).send({message:'删除失败'})
+          return res.status(400).send({message:'删除失败'})
         }
         return res.send({
           msg:'删除成功'
         })
       })
     })
+
+      //获取部门所有人
+      const department = require('../models/Department')
+      app.get('/api/department/owner',async (req,res)=>{
+        const {name} = req.query
+        const dep = await department.findOne({name})
+        const owner = await department.aggregate([
+          {$match: {_id:dep._id}},
+          {
+            $lookup: {     //类似于join以cat为主体查另外一个集合，根据分类_id关联的文章表的外键去查询文章
+                from:'employees',     //关联那一个表
+                localField:'_id',   //本地键
+                foreignField:'department',     //相当于外键，article表中用的关联字段
+                as:'owner'   //名字
+            },
+        },
+        {$project:{'owner':1,'_id':0}}
+        ])
+        res.send(owner)
+      })
 }

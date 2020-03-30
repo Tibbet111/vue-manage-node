@@ -6,12 +6,20 @@ const api = axios.create({
     baseURL:'http://localhost:3000/api',
     timeout:5000,
 })
+let loading
 
 //请求
 api.interceptors.request.use(config=>{
     if(localStorage.token){
         config.headers.Authorization = 'Bearer ' + (localStorage.token)
     }
+
+    loading = Vue.prototype.$loading({
+        lock: true,
+        text: 'Loading',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
    
     return config
     
@@ -21,6 +29,7 @@ api.interceptors.request.use(config=>{
 
 //响应
 api.interceptors.response.use(res=>{
+    loading.close()
     if(res.data.msg){
         Vue.prototype.$message({
             type:'success',
@@ -36,6 +45,7 @@ api.interceptors.response.use(res=>{
         showCancelButton: false,
         type: 'warning'
         }).then(()=>{
+            loading.close()
             router.push('/login')
         })
     }
@@ -45,8 +55,10 @@ api.interceptors.response.use(res=>{
         type:'error',
         message:err.response.data.message
     })
+    loading.close()
     //若错误码401判断为未登录，跳转登录页
     if(err.response.status === 401){
+        loading.close()
         router.push('/login')
     }
 }
