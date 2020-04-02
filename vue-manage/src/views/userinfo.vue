@@ -37,7 +37,7 @@
     <pagination   style="float:right" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getInfo" />
 
     <!-- 添加，编辑弹窗 -->
-    <el-dialog :title="status=='new'?'添加信息':'编辑信息'" :visible.sync="dialogFormVisible" width="600px">
+    <el-dialog :title="status=='new'?'添加员工信息':'编辑员工信息'" :visible.sync="dialogFormVisible" width="600px">
   <el-form :model="userForm" :rules="rules" ref="userForm" label-width="70px">
    <el-form-item label="姓名" prop="name">
      <el-input v-model="userForm.name" :disabled="status == 'edit'"></el-input>
@@ -148,19 +148,7 @@ export default {
     },
     searchUser(){
       this.listQuery.page = 1
-      this.$api.get('/employee/list',{
-        params:{
-          page : this.listQuery.page,
-          limit : this.listQuery.limit,
-          value : this.search.value
-        }
-      }).then(res=>{
-        this.users = res.data.searchUser
-        this.total = res.data.total
-      })
-      if(this.search.value == ''){
-        this.getInfo()
-      }
+      this.getInfo()
     },
     //新建员工信息
     newUser(){
@@ -220,7 +208,11 @@ export default {
 			this.$api.delete(`/employee/delete/${ids}`)
       this.reload()
       })
-      
+    }
+  },
+  watch: {
+    'search.value':function(val){
+      val==''&&this.getInfo()
     }
   },
   created(){

@@ -10,6 +10,9 @@ import api from './api/api'
 
 import './assets/iconfont/iconfont.css'
 
+import JsonExcel from 'vue-json-excel';
+
+Vue.component('downloadExcel', JsonExcel)
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false

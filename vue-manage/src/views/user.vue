@@ -8,6 +8,11 @@
         <el-form-item>
           <el-button icon="el-icon-search" type="primary" @click="searchUser">查询</el-button>
         </el-form-item>
+        <el-form-item>
+          <download-excel class="export-excel-wrapper"  type= "xls" :fetch="allEmployee"  :fields="json_fields" name="员工信息.xls">
+            <el-button type="primary" >导出员工信息</el-button>
+          </download-excel>
+        </el-form-item>
       </el-form>
     </div>
     <el-table :data="users" highlight-current-row v-loading="listLoading" style="width:100%"
@@ -42,6 +47,22 @@ export default {
       total:0,
       users:[],
       listLoading:false,
+
+      json_fields: {
+          "姓名": "name", //常规字段
+          "性别": "sex", //支持嵌套属性
+          "年龄": "age",
+          "部门":"department.name",
+          "入职时间":"entrytime",
+          "电话":"phone"
+        },
+        
+        json_meta: [
+          [{
+            " key ": " charset ",
+            " value ": " utf- 8 "
+          }]
+        ]
     };
   },
   methods: {
@@ -61,28 +82,29 @@ export default {
         this.total = res.data.total
       })
     },
+    async allEmployee(){
+      const res = await this.$api.get('/v2/employees')
+      const employees = res.data
+      employees.forEach(item => {
+       item.entrytime =  dayjs(item.entrytime).format('YYYY-MM-DD')
+      });
+      return employees
+    },
     searchUser(){
        this.listQuery.page = 1
-      this.$api.get('/employee/list',{
-        params:{
-          page : this.listQuery.page,
-          limit : this.listQuery.limit,
-          value : this.search.value
-        }
-      }).then(res=>{
-        this.users = res.data.searchUser
-        this.total = res.data.total
-      })
-      if(this.search.value == ''){
-        this.getList()
-      }
+       this.getList()
     },
   },
   mounted(){
     this.$nextTick(()=>{
       this.getList()
     })
-  }
+  },
+  watch: {
+    'search.value':function(val){
+      val == ''&&this.getList()
+    }
+  },
 };
 </script>
 

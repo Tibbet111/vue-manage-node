@@ -21,8 +21,7 @@ module.exports = options =>{
           if(!req.user){
            res.status(401).send({message:"请先登录"})
          }
-        })
-        
+        })       
         await next()
       }
 }

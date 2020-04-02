@@ -139,6 +139,8 @@ module.exports = app =>{
       const queryOptions = {}
        if(req.Model.modelName == 'Department'){
           queryOptions.populate = { path: 'owner', select: 'name' }
+       }else if(req.Model.modelName =='Employee'){
+          queryOptions.populate = { path: 'department', select: 'name' }
        }
       const items = await req.Model.find().setOptions(queryOptions)
       res.send(items)
@@ -216,27 +218,22 @@ module.exports = app =>{
     app.get('/api/employee/list',async (req,res)=>{
       const {page,limit,value} = req.query
       if(page<1){
-        page = 1;
+        page = 1
       }
-      employee.find({
+      const total  = (await employee.find({
         $or:[
-        {name:{'$regex': value, $options: '$i'}},
-      ]
-    },(err,doc)=>{
-        if(err) return res.status(400).send({message:'获取失败'})
-        let total = doc.length;
-        employee.find({}).populate('department','name').skip((parseInt(page)-1)*parseInt(limit)).limit(parseInt(limit)).exec(function (err,docs) {
-          if(err){
-            console.log(err);
-            return res.status(400).send({message:'获取失败'})
-          }
-          return res.send({
-            total:total,
-            employee:docs,
-            searchUser:doc
-          })
-          })
-      }).populate('department','name')
+          {name:{'$regex': value, $options: '$i'}},
+        ]
+      })).length
+      const items = await employee.find(
+        {$or:[
+          {name:{'$regex': value, $options: '$i'}},
+        ]
+      }).populate('department','name').skip((parseInt(page)-1)*parseInt(limit)).limit(parseInt(limit)).lean()
+      res.send({
+        total,
+        employee:items
+      })
     })
     
 

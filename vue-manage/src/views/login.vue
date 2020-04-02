@@ -81,9 +81,10 @@ export default {
             password:'',
             checkpass:'',
         },
-        registerRules:{
+        registerRules:{ 
           name:[{required:true,message:'请输入姓名',trigger:'blur'}],
-          username:[{required:true,message:'请输入用户名',trigger:'blur'}],
+          username:[{required:true,message:'请输入用户名',trigger:'blur'},
+                    {pattern:/^[a-zA-Z0-9_-]{3,16}$/,message:'用户名由3到16位（字母，数字，下划线，减号）组成',trigger:'blur'}],
 					password:[{required:true,message:'请输入密码',trigger:'blur'},
 										{min:6,max:11,message:'请输入6-11位密码',trigger:'blur'}],
 					checkpass:[{validator:checkPass,trigger:'blur'}],
@@ -173,9 +174,10 @@ export default {
 
 <style lang="scss">
   #container{
-    background: url('../assets/1.jpg');
+    background: url('../assets/5.jpeg');
     background-repeat: no-repeat;
     background-size: 100% 100%;
+    background-position: center center;
     height: 100%;
     width: 100%;
     position:fixed;
@@ -183,7 +185,7 @@ export default {
       border-radius: 5px;
       background-clip: padding-box;
       width: 450px;
-      margin: 150px auto;
+      margin: 120px auto;
       padding: 35px 35px 15px 35px;
       background:#00000060;
       border:0px solid #eaeaea;

@@ -103,12 +103,10 @@ export default {
    	});
     },
     reset(){
-        this.userInfo = {
-            username:'',
-            avatar:'',
-            password:'',
-            checkpass:'',
-        }
+        this.userInfo.name = ''
+        this.userInfo.avatar = ''
+        this.userInfo.password = ''
+        this.userInfo.checkpass = ''
     }
   },
   created(){

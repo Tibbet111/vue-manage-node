@@ -18,7 +18,7 @@
           <el-input v-model="departmentForm.name"></el-input>
         </el-form-item>
         <el-form-item label="负责人">
-          <el-select v-model="departmentForm.owner" placeholder="请选择负责人">
+          <el-select v-model="departmentForm.owner" placeholder="请选择负责人" filterable>
         <el-option v-for="item in member" :key="item._id" :label="item.name" :value="item._id"></el-option>
         </el-select>
         </el-form-item>

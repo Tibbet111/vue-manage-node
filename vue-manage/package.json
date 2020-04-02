@@ -16,6 +16,7 @@
     "nprogress": "^0.2.0",
     "vue": "^2.6.11",
     "vue-cropper": "^0.5.0",
+    "vue-json-excel": "^0.2.98",
     "vue-router": "^3.1.5",
     "vue2-editor": "^2.10.2"
   },
